@@ -6,28 +6,32 @@
     </head>
     <body>
         <h1>User</h1>
-        <div data-bind="with: user"><p><span data-bind="text: name"></span></p>
-            <button data-bind="text: !admin()?'make Admin':'revoke Admin rights', click: toggleAdmin"></button>
-            <button data-bind="text: !editor()?'make Editor':'revoke Editor rights', click: toggleEditor"></button>
+        <div id = "security-manager" data-bind="with: user"><p><span data-bind="text: name"></span>
+            </p>
+            <div data-bind="foreach: roles">
+                <span data-bind="text: $data"></span>
+            </div>
+            <div data-bind="foreach: availableRoles">
+                <button data-bind="text: $data, click: $parent.toggleRole"></button>
+            </div>
         </div>
         <h2>Content</h2>
-
-        <div data-bind="visible: $root.user().admin">
+        <div data-bind="authorize: 'admin'">
             <div data-bind="stopBinding: true">
-                <div id="vm1">
+                <div id="vm1" >
                     vm1=<span data-bind="text: prop"></span>
                 </div>
             </div>
-
         </div>
-        <div data-bind="visible: $root.user().editor">
+        <div data-bind="authorize: 'editor'">
             <div data-bind="stopBinding: true">
-
-                <div id="vm2">
-                    vm2=<span data-bind="text: prop"></span>
+                <div id="vm2" >
+                    prop=<span data-bind="text: prop"></span>
+                    <div data-bind="authorize: 'reader'">
+                        prop2=<span data-bind="text: prop2"></span>
+                    </div>
                 </div>
             </div>
         </div>
-
     </body>
 </html>

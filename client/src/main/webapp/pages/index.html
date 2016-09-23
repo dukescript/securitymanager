@@ -19,16 +19,16 @@
         <div data-bind="authorize: 'admin'">
             <div data-bind="stopBinding: true">
                 <div id="vm1" >
-                    vm1=<span data-bind="text: prop"></span>
+                    vm1=<span data-bind="text: $data.prop"></span>
                 </div>
             </div>
         </div>
         <div data-bind="authorize: 'editor'">
             <div data-bind="stopBinding: true">
                 <div id="vm2" >
-                    prop=<span data-bind="text: prop"></span>
+                    prop=<span data-bind="text: $data.prop"></span>
                     <div data-bind="authorize: 'reader'">
-                        prop2=<span data-bind="text: prop2"></span>
+                        prop2=<span data-bind="text: $data.prop2"></span>
                     </div>
                 </div>
             </div>

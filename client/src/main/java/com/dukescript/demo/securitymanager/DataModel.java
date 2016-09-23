@@ -26,8 +26,8 @@ final class DataModel {
         ui.getUser().getAvailableRoles().add("editor");
         ui.getUser().getAvailableRoles().add("reader");
         ui.applyBindings();
-        vm1 vm1 = new vm1("vm1");
-        vm2 vm2 = new vm2("vm2", "prop2");
+        vm1 vm1 = new vm1("vm1value");
+        vm2 vm2 = new vm2("vm2value", "prop2value");
         Models.applyBindings(vm2, "vm2");
         Models.applyBindings(vm1, "vm1");
     }

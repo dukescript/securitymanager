@@ -1,9 +1,19 @@
 package com.dukescript.demo.securitymanager.js;
 
 import net.java.html.js.JavaScriptBody;
-import net.java.html.json.Function;
 import net.java.html.json.Model;
 import net.java.html.json.Property;
+import net.java.html.lib.Array;
+import net.java.html.lib.Function;
+import net.java.html.lib.Objs;
+import net.java.html.lib.Union;
+import net.java.html.lib.dom.CSSStyleDeclaration;
+import static net.java.html.lib.dom.Exports.document;
+import net.java.html.lib.dom.HTMLElement;
+import static net.java.html.lib.knockout.Exports.ko;
+import net.java.html.lib.knockout.KnockoutBindingHandler;
+import net.java.html.lib.knockout.KnockoutBindingHandlers;
+import net.java.html.lib.knockout.KnockoutSubscribable;
 
 /**
  * Use {@link JavaScriptBody} annotation on methods to directly interact with
@@ -23,7 +33,7 @@ public final class SecurityBinding {
             targetId = "")
     public static class Uservmd {
 
-        @Function
+        @net.java.html.json.Function
         public static void toggleRole(User user, String data) {
             if (user.getRoles().contains(data)) {
                 user.getRoles().remove(data);
@@ -37,22 +47,43 @@ public final class SecurityBinding {
     private SecurityBinding() {
     }
 
-    @JavaScriptBody(args = {}, body = "ko.bindingHandlers.authorize = {\n"
-            + "    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {\n"
-            + "         var value = ko.unwrap(valueAccessor());\n"
-            + "         var user = ko.contextFor(document.getElementById('security-manager')).$root.user();\n"
-            + "         var roles = user.roles;\n"
-            + "         if (roles().indexOf(value)==-1){\n"
-            + "                 element.style.visibility='hidden';\n"
-            + "             } else { element.style.visibility='visible'; }"
-            + "         roles.subscribe(function(changes) {\n"
-            + "             console.log('change in roles checking for role '+value);     "
-            + "             if (roles().indexOf(value)==-1){\n"
-            + "                 element.style.visibility='hidden';\n"
-            + "             } else { element.style.visibility='visible'; }"
-            + "         });\n"
-            + "    },\n"
-            + "};")
-    public static native void init();
+    public static void init() {
+        KnockoutBindingHandlers handlers = ko.bindingHandlers.get();
+        class Init implements Function.A2<Object,Function.A0<? extends Object>, Union.A2<Void, Objs>> {
+            @Override
+            public Union.A2<Void, Objs> call(Object e, Function.A0<? extends Object> valueAccessor) {
+                HTMLElement element = HTMLElement.$as(e);
+                KnockoutSubscribable<Array<String>> roles = findRoles();
+                roles.subscribe((changes) -> {
+                    enableVisibility(element, valueAccessor, roles);
+                    return null;
+                });
+                enableVisibility(element, valueAccessor, roles);
+                return null;
+            }
 
+            private void enableVisibility(
+                HTMLElement element, Function.A0<? extends Object> valueAccessor, KnockoutSubscribable<Array<String>> roles
+            ) {
+                Object value = ko.unwrap(valueAccessor.call());
+                CSSStyleDeclaration style = element.style.get();
+                Array roleValues = Array.$as(Function.$as(roles).apply(null));
+                if (roleValues.indexOf(value) < 0) {
+                    style.visibility.set("hidden");
+                } else {
+                    style.visibility.set("visible");
+                }
+            }
+        }
+        KnockoutBindingHandler authorize = KnockoutBindingHandler.$as(new Objs());
+        authorize.init.set(new Init());
+        handlers.$set("authorize", authorize);
+    }
+
+    static KnockoutSubscribable<Array<String>> findRoles() {
+        Objs securityManager = Objs.$as(ko.contextFor(document.getElementById("security-manager")));
+        Object user = Function.$as(Objs.$as(securityManager.$get("$root")).$get("user")).apply(null);
+        KnockoutSubscribable<Array<String>> roles = KnockoutSubscribable.$as(Objs.$as(user).$get("roles"));
+        return roles;
+    }
 }
